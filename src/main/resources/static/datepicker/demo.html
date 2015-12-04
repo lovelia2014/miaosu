@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>南京秒速流量充值平台</title>
+
+    <!-- EXTJS Import -->
+    <LINK rel="stylesheet" type="text/css"  href="../css/app.css"/>
+    <LINK rel="stylesheet" type="text/css"  href="../css/index.css"/>
+    <LINK rel="stylesheet" type="text/css" href="../extjs/resources/css/ext-all.css"/>
+    <LINK rel="stylesheet" type="text/css"
+          href="../extjs/TabScrollerMenu/tab-scroller-menu.css"/>
+
+    <script language="javascript" type="text/javascript" src="WdatePicker.js"></script>
+
+    <SCRIPT type="text/javascript" src="../extjs/ext-base.js"></SCRIPT>
+    <SCRIPT type="text/javascript" src="../extjs/ext-all.js"></SCRIPT>
+
+</head>
+<body>
+</body>
+<input type="text" name="aaa" onclick="WdatePicker()">
+
+<script>
+    Ext.onReady(function(){
+
+        var win = new Ext.Window({
+            width:400,
+            height: 300,
+            items:[{
+                xtype:'form',
+                items:[{
+                    xtype: 'textfield',
+                    id:'text',
+                    name: 'text',
+                    listeners:{
+                        focus: function(field){
+                            console.log("focus1");
+                            WdatePicker({el:'text'});
+                            console.log("focus2");
+                        }
+                    }
+                }]
+            }]
+        });
+//        Ext.get('text').on('click',function(){
+//            WdatePicker({dateFmt:'yyyy年MM月dd日 HH:mm:ss'})
+//        });
+
+        win.show();
+    });
+</script>
+</html>

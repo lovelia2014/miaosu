@@ -1,0 +1,72 @@
+.icon-confirm-failed {
+    background-image: url(../images/app/confirm_failed.gif) !important;
+}
+.icon-start {
+    background-image: url(../images/app/start.gif) !important;
+}
+.icon-stop {
+     background-image: url(../images/app/stop.gif) !important;
+}
+.icon-bill-checkin {
+    background-image: url(../images/app/bill_checkin.gif) !important;
+}
+.icon-balance-add {
+    background-image: url(../images/user/balance_add.gif) !important;
+}
+.icon-balance-sub {
+    background-image: url(../images/user/balance_sub.gif) !important;
+}
+.icon-user-add {
+    background-image: url(../images/user/user_add.png) !important;
+}
+.icon-user-delete {
+    background-image: url(../images/user/user_delete.png ) !important;
+}
+.icon-user-edit {
+    background-image: url(../images/user/user_edit.png ) !important;
+}
+.icon-add {
+    background-image: url(../images/app/add.gif ) !important;
+}
+.icon-delete {
+    background-image: url(../images/app/delete.gif ) !important;
+}
+.icon-edit {
+    background-image: url(../images/app/edit.png ) !important;
+}
+.icon-enable {
+    background-image: url(../images/app/enable.gif ) !important;
+}
+.icon-secret {
+    background-image: url(../images/app/secret.gif ) !important;
+}
+.icon-home {
+    background: url(../images/app/home.gif ) no-repeat 0 3px !important;
+}
+.icon-user {
+    background: url(../images/app/user.png ) no-repeat 0 3px !important;
+}
+.icon-bill {
+    background: url(../images/app/bill.gif ) no-repeat 0 3px !important;
+}
+.icon-log {
+    background: url(../images/app/log.gif ) no-repeat 0 3px !important;
+}
+.icon-product {
+    background: url(../images/app/product.gif ) no-repeat 0 3px !important;
+}
+.icon-order {
+    background: url(../images/app/order.gif ) no-repeat 0 3px !important;
+}
+.icon-blacknum {
+    background: url(../images/app/blacknum.gif ) no-repeat 0 3px !important;
+}
+.icon-area {
+    background: url(../images/app/area.gif ) no-repeat 0 3px !important;
+}
+.icon-bill-stat {
+    background: url(../images/app/billstat.gif) no-repeat 0 3px !important;
+}
+.icon-order-stat {
+    background: url(../images/app/orderstat.gif) no-repeat 0 3px !important;
+}

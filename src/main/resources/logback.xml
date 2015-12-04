@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- For assistance related to logback-translator or configuration -->
+<!-- files in general, please contact the logback user mailing list -->
+<!-- at http://www.qos.ch/mailman/listinfo/logback-user -->
+<!-- -->
+<!-- For professional support please see -->
+<!-- http://www.qos.ch/shop/products/professionalSupport -->
+<!-- -->
+<configuration>
+    <property name="appName" value="miaosu-web"/>
+    <property name="logHome" value="./logs/"/>
+    <property name="CHARSET" value="UTF-8"/>
+    <property name="APPLOG_PATTEN" value='%d{yyyy-MM-dd HH:mm:ss.SSS}|%level|${PID:- }|%thread|%logger\:%line|%replace(%.-2000msg){"(\r|\n)","\t"}|"%.-2000ex{full}"%n'/>
+    <property name="NOTIFY_PATTEN" value='%d{yyyy-MM-dd HH:mm:ss.SSS}|%level|%thread|%replace(%msg){"(\r|\n)","\t"}|"%.-2000ex{full}"%n'/>
+    <property name="RECHARGE_PATTEN" value='%d{yyyy-MM-dd HH:mm:ss.SSS}|%level|%thread|%replace(%msg){"(\r|\n)","\t"}|"%.-2000ex{full}"%n'/>
+    <property name="CALLBACK_PATTEN" value='%d{yyyy-MM-dd HH:mm:ss.SSS}|%level|%thread|%replace(%msg){"(\r|\n)","\t"}|"%.-2000ex{full}"%n'/>
+    <property name="REQUEST_PATTEN" value='%d{yyyy-MM-dd HH:mm:ss.SSS}|%level|%thread|%replace(%msg){"(\r|\n)","\t"}%n'/>
+
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!-- ERROR日志文件 -->
+    <appender name="errAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 只记录warn及以上级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <file>${logHome}/err.${HOSTNAME}.ing</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志文件输出的文件名，按天生成文件名 -->
+            <fileNamePattern>${logHome}/err/err.${HOSTNAME}.%d{yyyy-MM-dd}.log.%i.zip</fileNamePattern>
+            <MaxHistory>30</MaxHistory><!--日志文件保留天数 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 按时间回滚的同时，按文件大小来回滚 -->
+                <maxFileSize>30MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>${CHARSET}</charset>
+            <pattern>${APPLOG_PATTEN}</pattern>
+        </encoder>
+    </appender>
+    <appender name="asyncErrorAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 队列空闲空间小于此配置时,则会丢弃TRACT、DEBUG、INFO级别的日志。默认队列已满80%时丢弃 -->
+        <discardingThreshold>512</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <includeCallerData>true</includeCallerData>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="errAppender"/>
+    </appender>
+
+
+    <appender name="appAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logHome}/app.${HOSTNAME}.ing</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志文件输出的文件名，按天生成文件名 -->
+            <fileNamePattern>${logHome}/app/app.${HOSTNAME}.%d{yyyy-MM-dd}.log.%i.zip</fileNamePattern>
+            <MaxHistory>30</MaxHistory><!--日志文件保留天数 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 按时间回滚的同时，按文件大小来回滚 -->
+                <maxFileSize>30MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>${CHARSET}</charset>
+            <pattern>${APPLOG_PATTEN}</pattern>
+        </encoder>
+    </appender>
+    <appender name="asyncAppAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 队列空闲空间小于此配置时,则会丢弃TRACT、DEBUG、INFO级别的日志。默认队列已满80%时丢弃 -->
+        <discardingThreshold>512</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <includeCallerData>true</includeCallerData>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="appAppender"/>
+    </appender>
+
+    <appender name="notifyAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logHome}/notify.${HOSTNAME}.ing</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logHome}/notify/notify-${HOSTNAME}.%d{yyyy-MM-dd}.log.%i.zip</fileNamePattern>
+            <MaxHistory>60</MaxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 按时间回滚的同时，按文件大小来回滚 -->
+                <maxFileSize>30MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>${CHARSET}</charset>
+            <pattern>${NOTIFY_PATTEN}</pattern>
+        </encoder>
+    </appender>
+    <appender name="asyncNotifyAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 队列空闲空间小于此配置时,则会丢弃TRACT、DEBUG、INFO级别的日志。默认队列已满80%时丢弃 -->
+        <discardingThreshold>512</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="notifyAppender"/>
+    </appender>
+
+    <appender name="rechargeAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logHome}/recharge.${HOSTNAME}.ing</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logHome}/recharge/recharge-${HOSTNAME}.%d{yyyy-MM-dd}.log.%i.zip</fileNamePattern>
+            <MaxHistory>60</MaxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 按时间回滚的同时，按文件大小来回滚 -->
+                <maxFileSize>30MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>${CHARSET}</charset>
+            <pattern>${RECHARGE_PATTEN}</pattern>
+        </encoder>
+    </appender>
+    <appender name="asyncRechargeAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 队列空闲空间小于此配置时,则会丢弃TRACT、DEBUG、INFO级别的日志。默认队列已满80%时丢弃 -->
+        <discardingThreshold>512</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="rechargeAppender"/>
+    </appender>
+
+    <appender name="requestAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logHome}/request.${HOSTNAME}.ing</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logHome}/request/request-${HOSTNAME}.%d{yyyy-MM-dd}.log.%i.zip</fileNamePattern>
+            <MaxHistory>60</MaxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 按时间回滚的同时，按文件大小来回滚 -->
+                <maxFileSize>30MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="">
+            <charset>${CHARSET}</charset>
+            <pattern>${REQUEST_PATTEN}</pattern>
+        </encoder>
+    </appender>
+    <appender name="asyncRequestAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 队列空闲空间小于此配置时,则会丢弃TRACT、DEBUG、INFO级别的日志。默认队列已满80%时丢弃 -->
+        <discardingThreshold>512</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="requestAppender"/>
+    </appender>
+
+    <appender name="callbackAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logHome}/callback.${HOSTNAME}.ing</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logHome}/callback/callback-${HOSTNAME}.%d{yyyy-MM-dd}.log.%i.zip</fileNamePattern>
+            <MaxHistory>60</MaxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 按时间回滚的同时，按文件大小来回滚 -->
+                <maxFileSize>30MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>${CHARSET}</charset>
+            <pattern>${CALLBACK_PATTEN}</pattern>
+        </encoder>
+    </appender>
+    <appender name="asyncCallbackAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 队列空闲空间小于此配置时,则会丢弃TRACT、DEBUG、INFO级别的日志。默认队列已满80%时丢弃 -->
+        <discardingThreshold>512</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="callbackAppender"/>
+    </appender>
+
+    <logger name="callback" level="info" additivity="false">
+        <appender-ref ref="asyncCallbackAppender"/>
+    </logger>
+    <logger name="notify" level="info" additivity="false">
+        <appender-ref ref="asyncNotifyAppender"/>
+    </logger>
+    <logger name="recharge" level="info" additivity="false">
+        <appender-ref ref="asyncRechargeAppender"/>
+    </logger>
+    <logger name="requestLog" level="info" additivity="false">
+        <appender-ref ref="asyncRequestAppender"/>
+    </logger>
+    <logger name="com.miaosu" level="info">
+        <appender-ref ref="asyncAppAppender"/>
+    </logger>
+    <root>
+        <appender-ref ref="asyncErrorAppender"/>
+    </root>
+</configuration>

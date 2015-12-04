@@ -1,0 +1,80 @@
+{
+  "properties": [
+    {
+      "name": "api-doc.contact",
+      "type": "java.lang.String",
+      "description": "联系方式",
+      "sourceType": "com.miaosu.flux.config.ApiDocProperties",
+      "defaultValue": "Contact Email"
+    },
+    {
+      "name": "api-doc.description",
+      "type": "java.lang.String",
+      "description": "API文档描述",
+      "sourceType": "com.miaosu.flux.config.ApiDocProperties",
+      "defaultValue": "Api Documentation"
+    },
+    {
+      "name": "api-doc.include-pattern",
+      "type": "java.lang.String",
+      "description": "API文档的包含路径，可配正则表达式，默认包含所有；",
+      "sourceType": "com.miaosu.flux.config.ApiDocProperties",
+      "defaultValue": ".*"
+    },
+    {
+      "name": "api-doc.license",
+      "type": "java.lang.String",
+      "description": "license限制",
+      "sourceType": "com.miaosu.flux.config.ApiDocProperties",
+      "defaultValue": "Apache 2.0"
+    },
+    {
+      "name": "api-doc.license-url",
+      "type": "java.lang.String",
+      "description": "license限制详细地址",
+      "sourceType": "com.miaosu.flux.config.ApiDocProperties",
+      "defaultValue": "http://www.apache.org/licenses/LICENSE-2.0"
+    },
+    {
+      "name": "api-doc.term-of-service-url",
+      "type": "java.lang.String",
+      "sourceType": "com.miaosu.flux.config.ApiDocProperties",
+      "defaultValue": "urn:tos"
+    },
+    {
+      "name": "api-doc.title",
+      "type": "java.lang.String",
+      "description": "API文档标题",
+      "sourceType": "com.miaosu.flux.config.ApiDocProperties",
+      "defaultValue": "Api Documentation"
+    },
+    {
+      "name": "api-doc.version",
+      "type": "java.lang.String",
+      "description": "API文档版本",
+      "sourceType": "com.miaosu.flux.config.ApiDocProperties",
+      "defaultValue": "1.0"
+    },
+    {
+      "name": "async.corePoolSize",
+      "type": "java.lang.Integer",
+      "description": "Set the ThreadPoolExecutor's core pool size. ",
+      "sourceType": "com.miaosu.flux.config.AsyncProperties",
+      "defaultValue": "2"
+    },
+    {
+      "name": "async.maxPoolSize",
+      "type": "java.lang.Integer",
+      "description": "Set the ThreadPoolExecutor's maximum pool size",
+      "sourceType": "com.miaosu.flux.config.AsyncProperties",
+      "defaultValue": "5"
+    },
+    {
+      "name": "async.queueCapacity",
+      "type": "java.lang.Integer",
+      "description": "Set the capacity for the ThreadPoolExecutor's BlockingQueue",
+      "sourceType": "com.miaosu.flux.config.AsyncProperties",
+      "defaultValue": "10000"
+    }
+  ]
+}

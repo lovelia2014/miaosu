@@ -1,0 +1,662 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd
+                   http://www.liquibase.org/xml/ns/dbchangelog-ext
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="now" value="now()" dbms="mysql,h2"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+    <property name="now" value="sysdate" dbms="oracle"/>
+
+    <property name="autoIncrement" value="true" dbms="mysql,h2,postgresql"/>
+    <property name="autoIncrement" value="false" dbms="oracle"/>
+
+    <changeSet author="angus" id="miaosu-1.0.0">
+        <comment>初始化权限数据结构...</comment>
+        <createTable tableName="users" remarks="用户表">
+            <column name="username" remarks="用户名" type="varchar(64)">
+                <constraints primaryKey="true" primaryKeyName="pk_users"/>
+            </column>
+            <column name="password" remarks="密码" type="varchar(64)"/>
+            <column name="enabled" remarks="是否启用(0:禁用;1:启用;)" type="boolean"/>
+        </createTable>
+
+        <createTable tableName="authorities" remarks="用户——权限表">
+            <column name="username" remarks="用户名" type="varchar(64)"/>
+            <column name="authority" remarks="权限" type="varchar(64)"/>
+        </createTable>
+
+        <createTable tableName="groups" remarks="群组表">
+            <column name="id" type="bigint" autoIncrement="true" remarks="ID">
+                <constraints primaryKey="true" primaryKeyName="pk_groups"/>
+            </column>
+            <column name="group_name" type="varchar(64)" remarks="群组名"/>
+        </createTable>
+
+        <createTable tableName="group_authorities" remarks="群组——权限表">
+            <column name="group_id" type="bigint" remarks="群组ID"/>
+            <column name="authority" type="varchar(64)" remarks="权限"/>
+        </createTable>
+
+        <createTable tableName="group_members" remarks="群组-成员表">
+            <column name="id" autoIncrement="true" type="bigint" remarks="ID">
+                <constraints primaryKey="true" primaryKeyName="pk_group_members"/>
+            </column>
+            <column name="username" type="varchar(64)" remarks="用户名"/>
+            <column name="group_id" type="bigint" remarks="群组ID"/>
+        </createTable>
+
+        <createTable tableName="persistent_logins" remarks="登录信息表">
+            <column name="series" type="varchar(64)" remarks="主键">
+                <constraints primaryKey="true" primaryKeyName="pk_persistent_logins"/>
+            </column>
+            <column name="username" type="varchar(64)" remarks="用户名"/>
+            <column name="token" type="varchar(64)" remarks="token"/>
+            <column name="last_used" type="timestamp" remarks="token"/>
+        </createTable>
+
+    </changeSet>
+
+    <changeSet author="angus" id="miaosu-1.0.1" runInTransaction="true">
+        <comment>初始化权限信息...</comment>
+        <sql>
+            <!-- user:user root:Master123 admin:Admin123  -->
+            insert into users (username, password, enabled) values ('root', 'b7495678d76c5104409d10f23cd89326bb04c576b9907781a8679ac715584b9b', true);
+            insert into users (username, password, enabled) values ('admin', '3b612c75a7b5048a435fb6ec81e52ff92d6d795a8b5a9c17070f6a63c97a53b2', true);
+            insert into groups(id, group_name) values(1, "系统管理员");
+            insert into groups(id, group_name) values(2, "管理员");
+            insert into group_authorities(group_id, authority) values(1, 'ROLE_SYS_ADMIN');
+            insert into group_authorities(group_id, authority) values(1, 'ROLE_ADMIN');
+            insert into group_authorities(group_id, authority) values(1, 'ROLE_USER');
+            insert into group_authorities(group_id, authority) values(2, 'ROLE_ADMIN');
+            insert into group_authorities(group_id, authority) values(2, 'ROLE_USER');
+            insert into group_members(id, username, group_id) values(1, 'root', 1);
+            insert into group_members(id, username, group_id) values(2, 'admin', 2);
+        </sql>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.2" author="angus">
+        <comment>创建菜单信息表...</comment>
+        <createTable tableName="menus" remarks="菜单信息表">
+            <column name="id" autoIncrement="true" type="int">
+                <constraints primaryKey="true" primaryKeyName="PK_MENU"/>
+            </column>
+            <column name="text" type="varchar(96)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="alias" type="varchar(96)"/>
+            <column name="parent_id" type="int"/>
+            <column name="icon_cls" type="varchar(96)"/>
+            <column name="leaf" type="boolean" defaultValueBoolean="false"/>
+            <column name="url" type="varchar(96)"/>
+            <column name="authorities" type="varchar(256)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.3" author="angus" runInTransaction="true">
+        <comment>初始化菜单信息...</comment>
+        <sql>
+            insert into `menus`(id, text, alias, parent_id, icon_cls, leaf, url, authorities) values
+            ('1', '秒速流量充值管理系统', null, null, 'icon-red', 0, null, null),
+            ('2', '会员管理', 'hygl', '1', 'icon-yellow', 0, null, null),
+            ('3', '商品管理', 'spgl', '1', 'icon-yellow', 0, null, 'ROLE_ADMIN,ROLE_SYS_ADMIN'),
+            ('4', '订单管理', 'ddgl', '1', 'icon-yellow', 0, null, null),
+            ('5', '号段管理', 'hdgl', '1', 'icon-yellow', 0, null, 'ROLE_ADMIN,ROLE_SYS_ADMIN'),
+            ('6', '会员信息', 'hyxx', '2', 'icon-user', 1, 'tab.userlist', 'ROLE_ADMIN,ROLE_SYS_ADMIN'),
+            ('7', '账单信息', 'czjl', '2', 'icon-bill', 1, 'tab.billlist', null),
+            ('8', '登录日志', 'dlrz', '2', 'icon-log', 1, 'tab.loglist', 'ROLE_UNKNOWN'),
+            ('9', '商品列表', 'splb', '3', 'icon-product', 1, 'tab.productlist', null),
+            ('10', '订单列表', 'ddlb', '4', 'icon-order', 1, 'tab.orderlist', null),
+            ('11', '归属地', 'gsd', '5', 'icon-area', 1, 'tab.phonelist', 'ROLE_UNKNOWN'),
+            ('12', '黑名单', 'hmd', '5', 'icon-blacknum', 1, 'tab.blacklist', null);
+        </sql>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.4" author="angus">
+        <comment>创建会员信息表...</comment>
+        <createTable tableName="members" remarks="会员表">
+            <column name="username" remarks="用户名" type="varchar(64)">
+                <constraints primaryKey="true" primaryKeyName="pk_members"/>
+            </column>
+            <column name="real_name" remarks="真实姓名" type="varchar(64)"/>
+            <column name="id_number" remarks="身份证号码" type="varchar(32)"/>
+            <column name="sex" remarks="性别(0:女;1:男;)" type="int"/>
+            <column name="mobile_phone" remarks="手机号码" type="varchar(16)">
+                <constraints unique="true" uniqueConstraintName="UQ_MOBILE_PHONE"/>
+            </column>
+            <column name="province" remarks="省份" type="varchar(32)"/>
+            <column name="city" remarks="市" type="varchar(32)"/>
+            <column name="area" remarks="区县" type="varchar(32)"/>
+            <column name="detail_addr" remarks="详细地址" type="varchar(128)"/>
+            <column name="reg_time" remarks="注册时间" type="datetime" defaultValueComputed="${now}"/>
+            <column name="last_login_time" remarks="上次登录时间" type="datetime"/>
+            <column name="last_login_ip" remarks="上次登录IP" type="varchar(32)"/>
+            <column name="discount" remarks="会员折扣" type="NUMBER(8, 4)"/>
+            <column name="token" remarks="接口访问token" type="varchar(128)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.5" author="angus">
+        <comment>创建序列表、序列function、初始化序列数据...</comment>
+        <createTable tableName="serial_no" remarks="序列表">
+            <column name="seq_name" type="varchar(32)" remarks="序列名">
+                <constraints primaryKey="true" primaryKeyName="pk_serialNo"/>
+            </column>
+            <column name="cur_val" type="bigint" defaultValue="0" remarks="当前值"/>
+            <column name="increment_val" type="int" remarks="递增值" defaultValue="1"/>
+        </createTable>
+        <sql>
+            drop function if exists `cur_val`;
+            drop function if exists `next_val`;
+        </sql>
+        <createProcedure procedureName="cur_val">
+            create function cur_val(v_seqName varchar(32))
+            returns bigint
+            begin
+            declare value bigint;
+            set value = 0;
+            select cur_val into value from serial_no where seq_name = v_seqName;
+            return value;
+            end
+        </createProcedure>
+        <createProcedure procedureName="next_val">
+            create function next_val(v_seqName varchar(32))
+            returns bigint
+            begin
+            update serial_no set cur_val = cur_val + increment_val where seq_name = v_seqName;
+            return cur_val(v_seqName);
+            end;
+        </createProcedure>
+        <sql>
+            insert into serial_no(seq_name) values
+            ('seq_member_no'),
+            ('seq_bill_no'),
+            ('seq_order_no');
+        </sql>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.6" author="angus">
+        <comment>创建锁表...</comment>
+        <createTable tableName="locks" remarks="锁">
+            <column name="name" type="varchar(64)" remarks="名称">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="locked" type="bit" remarks="锁标记" defaultValueBoolean="false"/>
+            <column name="locked_time" type="datetime" remarks="锁定时间"/>
+            <column name="locked_by" type="varchar(255)" remarks="锁定者"/>
+        </createTable>
+        <sql>
+            insert into locks(name) values("recharge_lock"), ("recharge_status_lock");
+        </sql>
+    </changeSet>
+
+
+    <changeSet id="miaosu-1.0.7" author="angus">
+        <comment>创建订单表...</comment>
+        <createTable tableName="orders" remarks="订单表">
+            <column name="id" type="varchar(32)" remarks="ID"/>
+            <column name="username" remarks="用户名" type="varchar(64)"/>
+            <column name="phone" remarks="号码" type="varchar(64)"/>
+            <column name="province" remarks="省份" type="varchar(64)"/>
+            <column name="effect_type" remarks="生效类型（0：本月生效；1：下月生效）" type="int"/>
+            <column name="external_id" remarks="外部订单号" type="varchar(64)"/>
+            <column name="product_id" remarks="商品Id" type="varchar(64)"/>
+            <column name="product_name" remarks="商品名称" type="varchar(64)"/>
+            <column name="product_price" remarks="商品价格" type="number(8, 4)"/>
+            <column name="price" remarks="订单价" type="number(8, 4)"/>
+            <column name="pay_state" remarks="支付状态（0：待支付；1：支付中；2：已支付；3：支付失败；4：退款中；5：已退款）" type="int"/>
+            <column name="pay_failed_reason" remarks="支付失败原因" type="varchar(128)"/>
+            <column name="pay_id" remarks="支付单号" type="varchar(32)"/>
+            <column name="refund_id" remarks="退款单号" type="varchar(32)"/>
+            <column name="recharge_id" remarks="充值订单号" type="varchar(64)"/>
+            <column name="recharge_system" remarks="充值系统" type="varchar(64)"/>
+            <column name="recharge_state" remarks="充值状态（0：待充值；1：充值中；2：充值成功；3：充值失败）" type="int"/>
+            <column name="recharge_failed_reason" remarks="充值失败原因" type="varchar(128)"/>
+            <column name="notify_url" remarks="回调地址" type="varchar(256)"/>
+            <column name="pay_time" remarks="支付时间" type="datetime"/>
+            <column name="recharge_time" remarks="充值时间" type="datetime"/>
+            <column name="create_time" remarks="生成时间" type="datetime" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <!--<modifySql>-->
+            <!--<append value="/*!50100 PARTITION BY RANGE (TO_DAYS(create_time))-->
+                            <!--(PARTITION p1 VALUES LESS THAN (TO_DAYS('2015-11-01')),-->
+                             <!--PARTITION p2 VALUES LESS THAN (TO_DAYS('2015-12-01')),-->
+                             <!--PARTITION p3 VALUES LESS THAN (TO_DAYS('2016-01-01')),-->
+                             <!--PARTITION p4 VALUES LESS THAN (TO_DAYS('2016-02-01')),-->
+                             <!--PARTITION p5 VALUES LESS THAN (TO_DAYS('2016-03-01')),-->
+                             <!--PARTITION p6 VALUES LESS THAN (TO_DAYS('2016-04-01')),-->
+                             <!--PARTITION p7 VALUES LESS THAN (TO_DAYS('2016-05-01')),-->
+                             <!--PARTITION p8 VALUES LESS THAN (TO_DAYS('2016-06-01')),-->
+                             <!--PARTITION p9 VALUES LESS THAN (TO_DAYS('2016-07-01')),-->
+                             <!--PARTITION p10 VALUES LESS THAN (TO_DAYS('2016-08-01')),-->
+                             <!--PARTITION p11 VALUES LESS THAN (TO_DAYS('2016-09-01')),-->
+                             <!--PARTITION p12 VALUES LESS THAN (TO_DAYS('2016-10-01')),-->
+                             <!--PARTITION p13 VALUES LESS THAN (TO_DAYS('2016-11-01')),-->
+                             <!--PARTITION p14 VALUES LESS THAN (TO_DAYS('2016-12-01')),-->
+                             <!--PARTITION p15 VALUES LESS THAN (TO_DAYS('2017-01-01')),-->
+                             <!--PARTITION p16 VALUES LESS THAN (TO_DAYS('2017-02-01')),-->
+                             <!--PARTITION p17 VALUES LESS THAN (TO_DAYS('2017-03-01')),-->
+                             <!--PARTITION p18 VALUES LESS THAN (TO_DAYS('2017-04-01')),-->
+                             <!--PARTITION p19 VALUES LESS THAN (TO_DAYS('2017-05-01')),-->
+                             <!--PARTITION p20 VALUES LESS THAN (TO_DAYS('2017-06-01')),-->
+                             <!--PARTITION p21 VALUES LESS THAN (TO_DAYS('2017-07-01')),-->
+                             <!--PARTITION p22 VALUES LESS THAN (TO_DAYS('2017-08-01')),-->
+                             <!--PARTITION p23 VALUES LESS THAN (TO_DAYS('2017-09-01')),-->
+                             <!--PARTITION p24 VALUES LESS THAN (TO_DAYS('2017-10-01')),-->
+                             <!--PARTITION p25 VALUES LESS THAN (TO_DAYS('2017-11-01')),-->
+                             <!--PARTITION p26 VALUES LESS THAN (TO_DAYS('2017-12-01')),-->
+                             <!--PARTITION p27 VALUES LESS THAN (TO_DAYS('2018-01-01')),-->
+                             <!--PARTITION p28 VALUES LESS THAN (TO_DAYS('2018-02-01')),-->
+                             <!--PARTITION p29 VALUES LESS THAN (TO_DAYS('2018-03-01')),-->
+                             <!--PARTITION p30 VALUES LESS THAN (TO_DAYS('2018-04-01')),-->
+                             <!--PARTITION p31 VALUES LESS THAN (TO_DAYS('2018-05-01')),-->
+                             <!--PARTITION p32 VALUES LESS THAN (TO_DAYS('2018-06-01')),-->
+                             <!--PARTITION p33 VALUES LESS THAN (TO_DAYS('2018-07-01')),-->
+                             <!--PARTITION p34 VALUES LESS THAN (TO_DAYS('2018-08-01')),-->
+                             <!--PARTITION p35 VALUES LESS THAN (TO_DAYS('2018-09-01')),-->
+                             <!--PARTITION p36 VALUES LESS THAN (TO_DAYS('2018-10-01')),-->
+                             <!--PARTITION p37 VALUES LESS THAN (TO_DAYS('2018-11-01')),-->
+                             <!--PARTITION p38 VALUES LESS THAN (TO_DAYS('2018-12-01')),-->
+                             <!--PARTITION p39 VALUES LESS THAN (TO_DAYS('2019-01-01')),-->
+                             <!--PARTITION d40 VALUES LESS THAN MAXVALUE) */"/>-->
+        <!--</modifySql>-->
+    </changeSet>
+    <changeSet id="miaosu-1.0.8" author="angus">
+        <comment>创建订单表主键、索引...</comment>
+        <addPrimaryKey tableName="orders" columnNames="id" constraintName="pk_orders"/>
+        <createIndex tableName="orders" unique="true" indexName="idx_id">
+            <column name="id"/>
+        </createIndex>
+        <createIndex tableName="orders" unique="true" indexName="idx_username_external_id">
+            <column name="username"/>
+            <column name="external_id"/>
+        </createIndex>
+        <createIndex tableName="orders" indexName="idx_create_time">
+            <column name="create_time"/>
+        </createIndex>
+        <createIndex tableName="orders" indexName="idx_recharge_time">
+            <column name="recharge_time"/>
+        </createIndex>
+        <createIndex tableName="orders" indexName="idx_recharge_id">
+            <column name="recharge_id"/>
+        </createIndex>
+        <createIndex tableName="orders" indexName="idx_phone">
+            <column name="phone"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.9" author="angus">
+        <comment>创建商品表...</comment>
+        <createTable tableName="products" remarks="商品表">
+            <column name="id" type="varchar(64)" remarks="商品ID">
+                <constraints primaryKey="true" primaryKeyName="pk_products"/>
+            </column>
+            <column name="name" type="varchar(128)" remarks="商品名称"/>
+            <column name="type" type="varchar(8)" remarks="产品类型（QX:前向产品，HX:后向产品）"/>
+            <column name="price" type="number(8, 4)" remarks="价格"/>
+            <column name="enabled" type="boolean" remarks="是否启用(0:禁用;1:启用;)"/>
+            <column name="applicable_area" type="varchar(128)" remarks="适用地区（返回空时，代表适用所有地区）"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.10" author="angus">
+        <comment>创建黑名单表...</comment>
+        <createTable tableName="blacknums" remarks="黑名单号码表">
+            <column name="number" type="varchar(32)" remarks="号码">
+                <constraints primaryKey="true" primaryKeyName="PK_BLACKNUMS"/>
+            </column>
+            <column name="remark" type="varchar(128)" remarks="备注"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.11" author="angus">
+        <comment>创建账单表...</comment>
+        <createTable tableName="bills" remarks="账单表">
+            <column name="id" type="varchar(32)" remarks="ID"/>
+            <column name="username" type="varchar(64)" remarks="用户名"/>
+            <column name="amt" type="number(8, 4)" remarks="操作金额（区别正负）"/>
+            <column name="old_balance" type="number(8, 4)" remarks="操作前用户余额"/>
+            <column name="type" type="int" remarks="流水类型(0：加钱；1：减钱；)"/>
+            <column name="channel" type="int" remarks="流水来源（0：充值；1：支付；2：退款；3：奖励；4：其他；）"/>
+            <column name="info" type="varchar(128)" remarks="操作信息"/>
+            <column name="status" type="int" remarks="账单处理状态（0: 未处理；1：处理中；2：处理成功；3：处理失败）"/>
+            <column name="create_time" remarks="生成时间" type="datetime" defaultValueComputed="${now}"/>
+        </createTable>
+        <!--<modifySql>-->
+            <!--<append value="/*!50100 PARTITION BY RANGE (TO_DAYS(create_time))-->
+                            <!--(PARTITION p1 VALUES LESS THAN (TO_DAYS('2015-11-01')),-->
+                             <!--PARTITION p2 VALUES LESS THAN (TO_DAYS('2015-12-01')),-->
+                             <!--PARTITION p3 VALUES LESS THAN (TO_DAYS('2016-01-01')),-->
+                             <!--PARTITION p4 VALUES LESS THAN (TO_DAYS('2016-02-01')),-->
+                             <!--PARTITION p5 VALUES LESS THAN (TO_DAYS('2016-03-01')),-->
+                             <!--PARTITION p6 VALUES LESS THAN (TO_DAYS('2016-04-01')),-->
+                             <!--PARTITION p7 VALUES LESS THAN (TO_DAYS('2016-05-01')),-->
+                             <!--PARTITION p8 VALUES LESS THAN (TO_DAYS('2016-06-01')),-->
+                             <!--PARTITION p9 VALUES LESS THAN (TO_DAYS('2016-07-01')),-->
+                             <!--PARTITION p10 VALUES LESS THAN (TO_DAYS('2016-08-01')),-->
+                             <!--PARTITION p11 VALUES LESS THAN (TO_DAYS('2016-09-01')),-->
+                             <!--PARTITION p12 VALUES LESS THAN (TO_DAYS('2016-10-01')),-->
+                             <!--PARTITION p13 VALUES LESS THAN (TO_DAYS('2016-11-01')),-->
+                             <!--PARTITION p14 VALUES LESS THAN (TO_DAYS('2016-12-01')),-->
+                             <!--PARTITION p15 VALUES LESS THAN (TO_DAYS('2017-01-01')),-->
+                             <!--PARTITION p16 VALUES LESS THAN (TO_DAYS('2017-02-01')),-->
+                             <!--PARTITION p17 VALUES LESS THAN (TO_DAYS('2017-03-01')),-->
+                             <!--PARTITION p18 VALUES LESS THAN (TO_DAYS('2017-04-01')),-->
+                             <!--PARTITION p19 VALUES LESS THAN (TO_DAYS('2017-05-01')),-->
+                             <!--PARTITION p20 VALUES LESS THAN (TO_DAYS('2017-06-01')),-->
+                             <!--PARTITION p21 VALUES LESS THAN (TO_DAYS('2017-07-01')),-->
+                             <!--PARTITION p22 VALUES LESS THAN (TO_DAYS('2017-08-01')),-->
+                             <!--PARTITION p23 VALUES LESS THAN (TO_DAYS('2017-09-01')),-->
+                             <!--PARTITION p24 VALUES LESS THAN (TO_DAYS('2017-10-01')),-->
+                             <!--PARTITION p25 VALUES LESS THAN (TO_DAYS('2017-11-01')),-->
+                             <!--PARTITION p26 VALUES LESS THAN (TO_DAYS('2017-12-01')),-->
+                             <!--PARTITION p27 VALUES LESS THAN (TO_DAYS('2018-01-01')),-->
+                             <!--PARTITION p28 VALUES LESS THAN (TO_DAYS('2018-02-01')),-->
+                             <!--PARTITION p29 VALUES LESS THAN (TO_DAYS('2018-03-01')),-->
+                             <!--PARTITION p30 VALUES LESS THAN (TO_DAYS('2018-04-01')),-->
+                             <!--PARTITION p31 VALUES LESS THAN (TO_DAYS('2018-05-01')),-->
+                             <!--PARTITION p32 VALUES LESS THAN (TO_DAYS('2018-06-01')),-->
+                             <!--PARTITION p33 VALUES LESS THAN (TO_DAYS('2018-07-01')),-->
+                             <!--PARTITION p34 VALUES LESS THAN (TO_DAYS('2018-08-01')),-->
+                             <!--PARTITION p35 VALUES LESS THAN (TO_DAYS('2018-09-01')),-->
+                             <!--PARTITION p36 VALUES LESS THAN (TO_DAYS('2018-10-01')),-->
+                             <!--PARTITION p37 VALUES LESS THAN (TO_DAYS('2018-11-01')),-->
+                             <!--PARTITION p38 VALUES LESS THAN (TO_DAYS('2018-12-01')),-->
+                             <!--PARTITION p39 VALUES LESS THAN (TO_DAYS('2019-01-01')),-->
+                             <!--PARTITION d40 VALUES LESS THAN MAXVALUE) */"/>-->
+        <!--</modifySql>-->
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.12" author="angus">
+        <comment>创建账单表主键、索引...</comment>
+        <addPrimaryKey tableName="bills" columnNames="id, create_time" constraintName="pk_bills"/>
+        <createIndex tableName="bills" unique="true" indexName="idx_id">
+            <column name="id"/>
+        </createIndex>
+        <createIndex tableName="bills" indexName="idx_username">
+            <column name="username"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.13" author="angus">
+        <comment>创建余额表</comment>
+        <createTable tableName="balances" remarks="余额表">
+            <column name="username" type="varchar(64)" remarks="用户名">
+                <constraints primaryKey="true" primaryKeyName="pk_balances"/>
+            </column>
+            <column name="balance" type="number(8,4)" defaultValueNumeric="0" remarks="余额"/>
+            <column name="create_time" type="datetime" defaultValueComputed="${now}" remarks="创建时间"/>
+            <column name="last_change_time" type="datetime" remarks="最后修改时间"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.14" author="angus">
+        <preConditions onFail="MARK_RAN" onFailMessage="已有数据">
+            <tableIsEmpty tableName="products"/>
+        </preConditions>
+        <comment>初始化商品表</comment>
+        <sql>
+            insert into products(id, name, type, price, enabled) values
+            ('G00020', '后向全国国内流量包-20MB', 'HX', 3, 1),
+            ('G00050', '后向全国国内流量包-50MB', 'HX', 6, 1),
+            ('G00100', '后向全国国内流量包-100MB', 'HX', 10, 1),
+            ('G00200', '后向全国国内流量包-200MB', 'HX', 15, 1),
+            ('G00500', '后向全国国内流量包-500MB', 'HX', 30, 1);
+        </sql>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.15" author="angus">
+        <preConditions onFail="MARK_RAN" onFailMessage="订单统计表已存在">
+            <not>
+                <tableExists tableName="order_stats"/>
+            </not>
+        </preConditions>
+        <comment>创建订单统计表...</comment>
+        <createTable tableName="order_stats" remarks="订单统计表">
+            <column name="id" autoIncrement="true" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="pk_order_stats"/>
+            </column>
+            <column name="stat_date" remarks="统计日期" type="date" />
+            <column name="username" remarks="用户名" type="varchar(64)"/>
+            <column name="product_id" remarks="商品ID" type="varchar(64)"/>
+            <column name="province" remarks="省份" type="varchar(64)"/>
+            <column name="total_count" remarks="订购总单数(只算付款成功后的）" type="bigint"/>
+            <column name="wait_recharge_sum" remarks="待充值总数" type="bigint"/>
+            <column name="recharging_sum" remarks="充值中总数" type="bigint"/>
+            <column name="recharge_ok_sum" remarks="充值成功总数" type="bigint"/>
+            <column name="recharge_fail_sum" remarks="充值失败总数" type="bigint"/>
+            <column name="total_price" remarks="订购总金额(只算付款成功后的）" type="number(16, 4)"/>
+            <column name="wait_recharge_price_sum" remarks="待充值总金额" type="number(16, 4)"/>
+            <column name="recharging_price_sum" remarks="充值中总金额" type="number(16, 4)"/>
+            <column name="recharge_ok_price_sum" remarks="充值成功总金额" type="number(16, 4)"/>
+            <column name="recharge_fail_price_sum" remarks="充值失败总金额" type="number(16, 4)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.16" author="angus">
+        <preConditions onFail="MARK_RAN" onFailMessage="账单统计表已存在">
+            <not>
+                <tableExists tableName="bill_stats"/>
+            </not>
+        </preConditions>
+        <comment>创建账单统计表...</comment>
+        <createTable tableName="bill_stats" remarks="账单统计表">
+            <column name="id" autoIncrement="true" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="pk_bill_stats"/>
+            </column>
+            <column name="stat_date" remarks="统计日期" type="date" />
+            <column name="username" remarks="用户名" type="varchar(64)"/>
+            <column name="add_sum" remarks="充值总金额" type="number(16, 4)"/>
+            <column name="pay_sum" remarks="支付总金额" type="number(16, 4)"/>
+            <column name="refund_sum" remarks="退款总金额" type="number(16, 4)"/>
+            <column name="reward_sum" remarks="奖励总金额" type="number(16, 4)"/>
+            <column name="others_sum" remarks="其他总金额" type="number(16, 4)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.17" author="angus" runInTransaction="true">
+        <preConditions onFail="MARK_RAN" onFailMessage="订单统计锁数据已存在">
+            <sqlCheck expectedResult="0">
+                select count(1) from locks where name='order_stats_lock';
+            </sqlCheck>
+        </preConditions>
+        <comment>初始化订单统计任务锁数据...</comment>
+        <sql>
+            insert into locks(name) values("order_stats_lock");
+        </sql>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.18" author="angus" runInTransaction="true">
+        <preConditions onFail="MARK_RAN" onFailMessage="账单统计锁数据已存在">
+            <sqlCheck expectedResult="0">
+                select count(1) from locks where name='bill_stats_lock';
+            </sqlCheck>
+        </preConditions>
+        <comment>初始化账单统计任务锁数据...</comment>
+        <sql>
+            insert into locks(name) values("bill_stats_lock");
+        </sql>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.19" author="angus" runInTransaction="true">
+        <comment>新增报表菜单信息...</comment>
+        <sql>
+            insert into `menus`(id, text, alias, parent_id, icon_cls, leaf, url, authorities) values
+            ('13', '账单统计', 'zdtj', '2', 'icon-bill-stat', 1, 'tab.billstatlist', null),
+            ('14', '订单统计', 'ddtj', '4', 'icon-order-stat', 1, 'tab.orderstatlist', null);
+        </sql>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.20" author="angus">
+        <comment>创建订单统计表索引...</comment>
+        <createIndex tableName="order_stats" indexName="idx_stat_date">
+            <column name="stat_date"/>
+        </createIndex>
+        <createIndex tableName="order_stats" indexName="idx_username">
+            <column name="username"/>
+        </createIndex>
+        <createIndex tableName="order_stats" indexName="idx_product_id">
+            <column name="product_id"/>
+        </createIndex>
+        <createIndex tableName="order_stats" indexName="idx_province">
+            <column name="province"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.21" author="angus">
+        <comment>创建账单统计表索引...</comment>
+        <createIndex tableName="bill_stats" indexName="idx_stat_date">
+            <column name="stat_date"/>
+        </createIndex>
+        <createIndex tableName="bill_stats" indexName="idx_username">
+            <column name="username"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="miaosu_1.0.22" author="angus">
+        <comment>创建订单统计函数</comment>
+        <createProcedure procedureName="stat_orders">
+            <![CDATA[
+            create function stat_orders(v_beginDate varchar(10), v_endDate varchar(10))
+            returns int
+            BEGIN
+                DECLARE o_result int;
+                set o_result = -1;
+
+                /* 避免重复统计，先清除信息 */
+                DELETE FROM order_stats WHERE stat_date >= v_beginDate and stat_date < v_endDate;
+
+                INSERT INTO order_stats (
+                    stat_date,
+                    username,
+                    product_id,
+                    province,
+                    total_count,
+                    wait_recharge_sum,
+                    recharging_sum,
+                    recharge_ok_sum,
+                    recharge_fail_sum,
+                    total_price,
+                    wait_recharge_price_sum,
+                    recharging_price_sum,
+                    recharge_ok_price_sum,
+                    recharge_fail_price_sum
+                ) SELECT
+                    DATE_FORMAT(create_time, '%Y-%m-%d') AS 日期,
+                    username,
+                    product_id,
+                    province,
+                    sum(CASE WHEN pay_state > 1 THEN 1 ELSE 0 END ) AS 订购总单数,
+                    sum(CASE WHEN recharge_state = 0 THEN 1 ELSE 0 END ) AS 待充值_单数,
+                    sum(CASE WHEN recharge_state = 1 THEN 1 ELSE 0 END ) AS 充值中_单数,
+                    sum(CASE WHEN recharge_state = 2 THEN 1 ELSE 0 END ) AS 成功_单数,
+                    sum(CASE WHEN recharge_state = 3 THEN 1 ELSE 0 END ) AS 失败_单数,
+                    sum(CASE WHEN pay_state > 1 THEN price ELSE 0 END ) AS 订购总金额,
+                    sum(CASE WHEN recharge_state = 0 THEN price ELSE 0 END ) AS 待充值_金额,
+                    sum(CASE WHEN recharge_state = 1 THEN price ELSE 0 END ) AS 充值中_金额,
+                    sum(CASE WHEN recharge_state = 2 THEN price ELSE 0 END ) AS 成功_金额,
+                    sum(CASE WHEN recharge_state = 3 THEN price ELSE 0 END ) AS 失败_金额
+                FROM
+                    orders
+                WHERE
+                    create_time >= v_beginDate
+                 AND create_time < v_endDate
+                GROUP BY
+                    日期, username, product_id, province;
+
+                SELECT ROW_COUNT() INTO o_result;
+                RETURN o_result;
+            END;
+            ]]>
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="miaosu_1.0.23" author="angus">
+        <comment>创建账单统计函数</comment>
+        <createProcedure procedureName="stat_bills">
+            <![CDATA[
+            create function stat_bills(v_beginDate varchar(10), v_endDate varchar(10))
+            returns int
+            BEGIN
+                DECLARE o_result int;
+                set o_result = -1;
+
+                /* 避免重复统计，先清除信息 */
+                DELETE FROM bill_stats WHERE stat_date >= v_beginDate and stat_date < v_endDate;
+
+                INSERT INTO bill_stats (
+                    stat_date,
+                    username,
+                    add_sum,
+                    pay_sum,
+                    refund_sum,
+                    reward_sum,
+                    others_sum
+                ) SELECT
+                    DATE_FORMAT(create_time, '%Y-%m-%d') AS 日期,
+                    username,
+                    sum(CASE WHEN channel = 0 THEN amt ELSE 0 END ) AS 充值总金额,
+                    sum(CASE WHEN channel = 1 THEN amt ELSE 0 END ) AS 支付总金额,
+                    sum(CASE WHEN channel = 2 THEN amt ELSE 0 END ) AS 退款总金额,
+                    sum(CASE WHEN channel = 3 THEN amt ELSE 0 END ) AS 奖励总金额,
+                    sum(CASE WHEN channel = 4 THEN amt ELSE 0 END ) AS 其他总金额
+                FROM
+                    bills
+                WHERE
+                    create_time >= v_beginDate
+                 AND create_time < v_endDate
+                 AND status = 2
+                GROUP BY
+                    日期, username;
+
+                SELECT ROW_COUNT() INTO o_result;
+                RETURN o_result;
+            END;
+            ]]>
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.24" author="angus" runInTransaction="true">
+        <preConditions onFail="MARK_RAN" onFailMessage="充值ID查询锁数据已存在">
+            <sqlCheck expectedResult="0">
+                select count(1) from locks where name='query_recharge_id_lock';
+            </sqlCheck>
+        </preConditions>
+        <comment>初始化账单统计任务锁数据...</comment>
+        <sql>
+            insert into locks(name) values("query_recharge_id_lock");
+        </sql>
+    </changeSet>
+
+    <changeSet id="miaosu-1.0.25" author="angus">
+        <preConditions onFail="MARK_RAN" onFailMessage="订单表充值结束时间字段已存在">
+            <not>
+                <columnExists tableName="orders" columnName="recharge_end_time"/>
+            </not>
+        </preConditions>
+        <comment>创建订单表充值结束时间字段...</comment>
+        <addColumn tableName="orders">
+            <column name="recharge_end_time" remarks="充值结束时间" type="datetime"/>
+        </addColumn>
+    </changeSet>
+    
+    <changeSet id="miaosu-1.0.26" author="angus">
+        <comment>修改订单表recharge_failed_reason字段长度为1024....</comment>
+        <sql>
+            ALTER TABLE `orders` CHANGE COLUMN `recharge_failed_reason` `recharge_failed_reason` VARCHAR (1024) CHARACTER
+            SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '充值失败原因';
+        </sql>
+    </changeSet>
+    <changeSet id="miaosu-1.0.27" author="wangxiang">
+        <comment>增加菜单-手工订单</comment>
+        <sql>
+            insert into `menus`(id, text, alias, parent_id, icon_cls, leaf, url, authorities) values
+            ('15', '手工订单', 'sgdd', '4', 'icon-order', 1, 'tab.manuallist', 'ROLE_ADMIN,ROLE_SYS_ADMIN');
+        </sql>
+    </changeSet>
+</databaseChangeLog>

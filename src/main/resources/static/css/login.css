@@ -1,0 +1,204 @@
+@charset "utf-8";
+/* CSS Document */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body, div, embed, ul, li, form, input {
+    margin: 0;
+    paddng: 0;
+}
+
+body {
+    font: 12px/1.5em Microsoft YaHei, Tahoma, Helvetica, Arial, sans-serif;
+    color: #fff;
+    background: url(../images/login/bg.jpg) no-repeat center 0;
+    background-size: 100% 100%;
+}
+
+ul {
+    list-style: none;
+}
+
+.hide {
+    display: none;
+}
+
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.clearfix {
+    display: inline-block;
+}
+
+* html .clearfix {
+    height: 1%;
+}
+
+.clearfix {
+    display: block;
+}
+
+.container {
+    width: 100%;
+    position: relative;
+    overflow-y: hidden;
+}
+
+.container video {
+    position: absolute;
+    z-index: 2;
+}
+
+.main {
+    position: relative;
+    z-index: 10;
+    width: 1000px;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.logo {
+    width: 110px;
+    height: 76px;
+    margin-top: 16px;
+    background: url(../images/login/logo-1.png)  no-repeat;
+    background-size:contain ;
+}
+.logo-title {
+    float: left;
+    margin-top:40px;
+    /*color: transparent;*/
+    /*background-color : black;*/
+    text-shadow : rgba(255,255,255,0.5) 0 5px 6px, rgba(255,255,255,0.2) 1px 3px 3px;
+    /*-webkit-background-clip: content-box;*/
+    font-size: xx-large;
+}
+
+.login {
+    float: right;
+    width: 250px;
+    padding: 35px;
+    margin-top: 85px;
+    background-color: rgba(0, 0, 0, .25);
+    background-color: rgb(0, 0, 0) \9;
+    *background-color: rgb(0, 0, 0);
+}
+
+.note-warn {
+    height: 26px;
+    margin-bottom: 30px;
+    color: #990;
+    /*background: url(../images/login_media/note.png) no-repeat;*/
+}
+
+.note-error {
+    height: 26px;
+    margin-bottom: 30px;
+    color: red;
+    /*background: url(../images/login_media/note.png) no-repeat;*/
+}
+
+.error {
+    padding: 5px 10px 5px 35px;
+    margin-bottom: 20px;
+    font: 12px Microsoft Yahei;
+    line-height: 20px;
+    color: #333;
+    background: #fce9e1 url(../images/login/error.png) no-repeat 10px 7px;
+}
+
+.txt {
+    width: 181px;
+    height: 18px;
+    padding: 13px 10px 13px 55px;
+    margin-bottom: 25px;
+    font: 14px SimSun;
+    line-height: 18px;
+    color: #fff;
+    background: transparent url(../images/login/icons.png) no-repeat -250px 0;
+    border: 2px solid #bdefee;
+    outline: none;
+}
+
+.txtFocus {
+    border-color: #0ea8c5;
+}
+
+#pwd {
+    background-position: -250px -73px;
+}
+
+#verify {
+    float: left;
+    width: 85px;
+    background-position: -250px -146px;
+}
+
+.verify {
+    float: right;
+    display: inline-block;
+    width: 86px;
+    height: 48px;
+    background-color: #fff;
+}
+
+.btn {
+    cursor: pointer;
+    width: 250px;
+    height: 48px;
+    padding: 10px 0;
+    *margin-top: 25px;
+    font: 16px Microsoft YaHei;
+    line-height: 18px;
+    color: #fff;
+    text-align: center;
+    -webkit-text-shadow: 1px 1px 1px rgba(6, 0, 1, .17);
+    -moz-text-shadow: 1px 1px 1px rgba(6, 0, 1, .17);
+    -ms-text-shadow: 1px 1px 1px rgba(6, 0, 1, .17);
+    -o-text-shadow: 1px 1px 1px rgba(6, 0, 1, .17);
+    text-shadow: 1px 1px 1px rgba(6, 0, 1, .17);
+    background: url(../images/login/icons.png) no-repeat 0 0;
+    border: 0 none;
+    outline: none;
+    margin-top: 10px;
+}
+
+.btnHover {
+    background-position: 0 -60px;
+}
+
+.btnDown {
+    background-position: 0 -121px;
+}
+
+.fl {
+    position: relative;
+    float: left;
+    display: inline;
+}
+
+.motto {
+    position: absolute;
+    left: -1000px;
+    top: 90px;
+    z-index: 10;
+    width: 360px;
+    height: 220px;
+    background: url(../images/login/motto.png) no-repeat 0 0;
+    background-size: contain;
+}
+
+/*.motto {position: absolute;left:-360px;top: 175px;z-index: 10;width: 360px;height: 220px;background:url(../images/motto1.png) no-repeat 0 0;}*/
+.footer {
+    position: absolute;
+    bottom: 60px;
+    width: 100%;
+    text-align: center;
+}
